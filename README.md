@@ -13,7 +13,7 @@ Utilizar herramientas profesionales como DBeaver para gestionar la base de datos
 
 📁 CONTENIDO DEL PROYECTO
 El repositorio incluye:
-🟣 consultas.sql: Archivo con todas las consultas SQL realizadas
+🟣 consultasproyecto.sql: Archivo con todas las consultas SQL realizadas
 🟣 README.md: Documento explicativo del proyecto 
 🟣 Esquema_base_de_datosSQL.jpg: un esquema de la BBDD con la que he trabajado
 
