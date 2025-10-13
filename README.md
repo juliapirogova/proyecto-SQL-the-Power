@@ -33,5 +33,5 @@ DBeaver – Como entorno de desarrollo y visualización de la base de datos.
 ✔️ Entrega estructurada y profesional del proyecto en GitHub.
 
 📲 CONTACTO
-Este proyecto ha servido mucho para aprender. Aunque son mis primeros pasos en este area, estoy muy abierta a sugerencia y propuestas de mejora. No dudes en contactar conmigo por aquí o en la plataforma
+Este proyecto ha servido mucho para aprender. Aunque son mis primeros pasos en este área, estoy muy abierta a sugerencias y propuestas de mejora. No dudes en contactar conmigo por aquí o en la plataforma
 Julia Pirogova [https://github.com/juliapirogova]
