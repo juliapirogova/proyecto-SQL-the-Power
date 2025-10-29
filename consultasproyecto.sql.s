@@ -18,9 +18,9 @@ from film f
 where f.original_language_id = f.language_id ;
 
  -- 5.Ordena Peliculas por duracion asc
-select f.title, f.rental_duration 
+select f.title, f.length 
 from film f
-order by f.rental_duration asc ;
+order by f.length  asc ;
 
 -- 6.Nombre y apellido actores que tengan Allen en su apellido
 select concat (first_name, ' ', last_name) as actor
@@ -62,7 +62,7 @@ limit 1;
  -- 11. lo que costo el antepenultimo alquiler ordenado por dia
 select p.amount as precio_alquiler
 from payment p 
-order by p.payment_date 
+order by p.payment_date ASC
 limit 1 offset 2;
 
  --12.  peliculas que no sean ni NC-17 ni G
@@ -78,7 +78,8 @@ group by f.rating;
  -- 14. titulo peliculas con duracion mayor a 180 minutos
 select f.title , f.length as duracion
 from film f 
-where f.length > 180;
+where f.length > 180
+order by duracion ;
 
  --15. dinero que ha generado la empresa
 select sum(p.amount ) as total_dinero_generado
@@ -87,21 +88,19 @@ from payment p;
 
 
  -- 16. 10 clientes con mayor valor de id
-select c.customer_id , concat( c.first_name ,' ', "last_name") as nombre_cliente
+select c.customer_id , concat( c.first_name ,' ', c.last_name) as nombre_cliente
 from customer c 
 order by c.customer_id desc
 limit 10;
 
  --17.  nombre y apellido actores de Egg Igby
-select a.first_name , a.last_name 
-from actor a 
-where a.actor_id in (
-     select actor_id
-from film_actor fa 
-where film_id in (
-      select film_id 
-      from film
-where title = 'EGG IGBY' ));
+select a.first_name as nombre, a.last_name as apellido
+from actor a
+join film_actor fa 
+on a.actor_id = fa.actor_id
+join film f
+on f.film_id = fa.film_id 
+where f.title = 'EGG IGBY'
 
  -- 18. nombres de las peliculas unicas
 select distinct f.title 
@@ -126,7 +125,7 @@ join film_category fc
 on c.category_id = fc.category_id
 join film f 
 on f.film_id = fc.film_id 
-group by c."name" 
+group by c.name
 having ROUND (AVG (f.length), 2) > 110;
  
 
@@ -134,14 +133,14 @@ having ROUND (AVG (f.length), 2) > 110;
 select AVG(return_date - rental_date ) as promedio_alquiler
 from rental;
 
- – 22. nombre y apellido de los actores
+ –- 22. nombre y apellido de los actores
 select concat (a.first_name , ' ', a.last_name ) as nombre_actor
 from actor a ;
 
  -- 23.numero de alquiler por dia ordenados por cantidad de alquileres desc
-select   rental_date, count(r.rental_id ) as numeros_alquiler
+select  DATE(rental_date) as dia, count(r.rental_id ) as numeros_alquiler
 from rental r 
-group by r.rental_date 
+group by DATE(r.rental_date) 
 order by count (r.rental_id ) desc;
 
 -- 24. peliculas con duracion superior a promedio
@@ -199,7 +198,7 @@ count (film_id) as numero_peliculas
 from actor a 
 left join film_actor fa
 on a.actor_id = fa.actor_id 
-group by concat (a.first_name, ' ', a.last_name );
+group by a.actor_id ;
 
  -- 31. peliculas y nombre de los actores que han participado (incluso sin actores asociados)
 select f.title as pelicula, concat (a.first_name, ' ', a.last_name ) as actor 
@@ -229,12 +228,12 @@ on i.film_id = f.film_id;
 
  -- 34. 5 clientes que mas dinero han gastado
 
-select  concat (c."FirstName" , ' ', c."LastName" ) as cliente, 
+select  concat (c.first_name , ' ', c.last_name  ) as cliente, 
 sum (p.amount ) as total_gastado
-from "Customer" c 
+from customer c 
 join payment p 
-on p.customer_id = c."CustomerId" 
-group by concat (c."FirstName" , ' ', c."LastName" )
+on p.customer_id = c.customer_id 
+group by concat (c.first_name  , ' ', c.last_name  )
 order by total_gastado desc
 limit 5;
 
@@ -286,17 +285,17 @@ order by veces_repetido desc ;
 --Los nombres mas repetidos son Kenneth, Penelope y Julia (4 veces)
 
  -- 42. los alquileres y nombres de los clientes
-select r.rental_id , r.rental_date as fecha , concat (c."FirstName" , ' ', c."LastName" ) as nombre_cliente
+select r.rental_id , r.rental_date as fecha , concat (c.first_name , ' ', c.last_name  ) as nombre_cliente
 from rental r 
-left join "Customer" c 
-on r.customer_id = c."CustomerId" ;
+left join customer c 
+on r.customer_id = c.customer_id;
 
 
  -- 43. nombres de los clientes y sus alquileres (si hay)
-select concat (c."FirstName" , ' ', c."LastName" ) as nombre_cliente, r.rental_id , r.rental_date as fecha 
+select concat (c.first_name  , ' ', c.last_name  ) as nombre_cliente, r.rental_id , r.rental_date as fecha 
 from rental r 
-right join "Customer" c 
-on r.customer_id = c."CustomerId" ;
+right join customer c 
+on r.customer_id = c.customer_id  ;
 
 -- 44. cross join entre tablas film y category
 select *
@@ -311,7 +310,7 @@ cross join category c ;
    with categoria_pelicula as (
   select c.category_id 
   from category c 
-  where "name" = 'Action'
+  where name = 'Action'
 ),
 
   id_pelicula as (
@@ -319,12 +318,13 @@ cross join category c ;
    from film_category fc 
    where fc.category_id IN (select category_id from categoria_pelicula)
 )
+
 select a.first_name as nombre , a.last_name as apellido
 from actor a 
 join film_actor fa 
 on a.actor_id = fa.actor_id
 where fa.film_id IN (select film_id from id_pelicula)
-group by a.first_name, a.Last_name;
+group by a.first_name, a.last_name;
 
 
  -- 46. actores que no han participado en las peliculas
@@ -350,10 +350,10 @@ count (fa.film_id ) as numero_peliculas
 from actor a 
 left join film_actor fa 
 on a.actor_id = fa.actor_id
-group by nombre_actor;
+group by a.actor_id ;
 
  -- 48 vista "actor_num_peliculas" con actores y su numero de peliculas
-create view actor_num_peliculas AS
+create or replace view actor_num_peliculas AS
 
 select concat (a.first_name , ' ', a.last_name ) as nombre_actor, 
 count (fa.film_id ) as numero_peliculas
@@ -363,10 +363,10 @@ on a.actor_id = fa.actor_id
 group by nombre_actor;
 
  -- 49 numero total de alquileres por cada cliente
-select concat (c."FirstName" , ' ', c."LastName" ) as nombre_cliente, count(r.rental_id )
-from "Customer" c 
+select concat (c.first_name  , ' ', c.last_name  ) as nombre_cliente, count(r.rental_id ) as alquileres
+from customer c 
 left join rental r 
-on c."CustomerId" = r.customer_id 
+on c.customer_id  = r.customer_id 
 group by nombre_cliente ;
 
  -- 50. duracion total de peliculas de Action
@@ -374,22 +374,22 @@ select sum (length) as duracion_total
 from film f 
 left join film_category fc 
 on f.film_id = fc.film_id
-left join category
-on fc.category_id = category.category_id
-where "name" = 'Action';
+left join category ca
+on fc.category_id = ca.category_id 
+where name = 'Action';
 
  -- 51. tabla temporal que almacena todos los alquileres por cliente
 
 create temporary table clientes_alquiler2 as 
-select c."FirstName", 
- c."LastName",
+select c.first_name, 
+ c.last_name,
 r.rental_id ,
 r.rental_date,
 r.return_date 
-from "Customer" c 
+from customer c 
 join rental r 
-on c."CustomerId" = r.customer_id 
-order by c."LastName";
+on c.customer_id = r.customer_id 
+order by c.last_name;
 
 
 select *
@@ -439,7 +439,7 @@ left join film_category fc
 on fa.film_id = fc.film_id 
 left join category ca
 on ca.category_id = fc.category_id 
-where ca."name" = 'Sci-Fi'
+where ca.name = 'Sci-Fi'
 group by a.last_name , a.first_name 
 order by apellido;
 
@@ -494,7 +494,7 @@ join inventory i
 on f.film_id = i.film_id
 join rental r
 on r.inventory_id = i.inventory_id 
-where r.return_date - r.rental_date > '8 days';
+where r.return_date - r.rental_date > interval '8 days';
 
  -- 58. titulo peliculas de categoria de animacion
 select f2.title as titulo
@@ -518,14 +518,16 @@ order by f.title ;
 
  --60. nombres de clientes que alquilaron 7 pelis distintas. abc por apellido
 
-select c."LastName" as apellido, c."FirstName" as nombre, 
-count (distinct r.rental_id ) as peliculas_distintas
-from "Customer" c 
+select c.last_name  as apellido, c.first_name  as nombre, 
+count (distinct i.film_id ) as peliculas_distintas
+from customer c 
 join rental r 
-on r.customer_id = c."CustomerId" 
-group by c."LastName" , c."FirstName" 
-having count (distinct r.rental_id) > 7
-order by c."LastName" ;
+on r.customer_id = c.customer_id 
+join inventory i 
+on r.inventory_id = i.inventory_id 
+group by c.last_name  , c.first_name  
+having count (distinct i.film_id ) > 7
+order by c.last_name  ;
 
 
 
@@ -542,12 +544,12 @@ join film_category fc
 on f.film_id = fc.film_id
 join category c
 on fc.category_id = c.category_id
-group by c."name";
+group by c.name;
 
 
 -- 62. numero de peliculas por categoria estrenadas en 2006
 
-select c."name" as categoria,
+select c.name as categoria,
 count  (f.film_id ) as numero_peliculas
 from film f 
 join film_category fc 
@@ -555,7 +557,7 @@ on f.film_id = fc.film_id
 join category c 
 on c.category_id = fc.category_id 
 where f.release_year = 2006
-group by c."name"; 
+group by c.name; 
 
 
  -- 63. todas las combinaciones de empleado y tienda
@@ -566,12 +568,13 @@ cross join store s2 ;
 
  -- 64. Id de cliente, nombre, apellido y cantidad peliculas alquiladas
 
-select c."CustomerId" , c."FirstName"  as nombre, c."LastName"  as apellido, 
+select c.customer_id  , c.first_name   as nombre, c.last_name   as apellido, 
 count (r.rental_id ) as cantidad_peliculas
-from "Customer" c 
+from customer c 
 left join rental r 
-on c."CustomerId"  = r.customer_id 
-group by c."CustomerId" , c."FirstName" , c."LastName" 
-order by c."CustomerId" ;
+on c.customer_id   = r.customer_id 
+group by c.customer_id , c.first_name  , c.last_name 
+order by c.customer_id  ;
+
 
 
