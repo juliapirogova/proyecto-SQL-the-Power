@@ -8,14 +8,14 @@ where f.rating = 'R';
 
  --3. Nombres actores que tengas actor_id entre 30 y 40
 select a.actor_id, 
-concat ("first_name", ' ', "last_name") as actor
+concat (first_name, ' ', last_name) as actor
 from actor a 
 where a.actor_id between 30 and 40;
 
 --4. Peliculas cuyo idioma es idioma original
 select f.title 
 from film f
-where f.original_language_id is null;
+where f.original_language_id = f.language_id ;
 
  -- 5.Ordena Peliculas por duracion asc
 select f.title, f.rental_duration 
@@ -23,9 +23,9 @@ from film f
 order by f.rental_duration asc ;
 
 -- 6.Nombre y apellido actores que tengan Allen en su apellido
-select concat ("first_name", ' ', "last_name") as actor
+select concat (first_name, ' ', last_name) as actor
 from actor a 
-where "last_name" = 'ALLEN';
+where last_name = 'ALLEN';
 
 -- 7.total peliculas en cada clasificacion 
 select f.rating ,  count (f.film_id ) as cantidad
@@ -38,7 +38,7 @@ from film f
 where f.rating = 'PG-13' or f.length > 180  ;
 
  --9. Variabilidad de coste de reemplazar las peliculas
-select round (variance("replacement_cost"), 2)  as Varianza_coste_reemplazo
+select round (VARIANCE(replacement_cost), 2)  as Varianza_coste_reemplazo
 from film f  ;
 
  -- 10. Mayor y menor duracion pelicula
@@ -573,4 +573,5 @@ left join rental r
 on c."CustomerId"  = r.customer_id 
 group by c."CustomerId" , c."FirstName" , c."LastName" 
 order by c."CustomerId" ;
+
 
